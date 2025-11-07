@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import sheetsRouter from './routes/sheets.js';
 import fileUpload from 'express-fileupload';
 
 ['uncaughtException', 'unhandledRejection'].forEach(event => {
@@ -20,5 +21,7 @@ app.use(fileUpload({
         files: 1
     }
 }));
+
+app.use('/sheets', sheetsRouter);
 
 app.listen(port, () => console.log(`Listening on port >> ${port}`));
