@@ -1,0 +1,50 @@
+import { config } from 'dotenv';
+
+config({path: './config.env'});
+
+const key = process.env.ARI_USERNAME + ':' + process.env.ARI_PASSWORD;
+const host = process.env.ARI_HOST;
+const app = process.env.ARI_APP;
+
+export async function originate(to, from, context, endpoint) {
+    to = formatNumber(to);
+    from = formatNumber(from);
+    
+    if (to === undefined || from === undefined) return
+
+    // Encode the '+' characters in the phone numbers
+    to = encodeURIComponent(to);
+    from = encodeURIComponent(from);
+
+    const uri = `/ari/channels?api_key=${key}&endpoint=PJSIP/${to}@${endpoint}&extension=${to}&context=${context}&priority=1&callerId=${from}`;
+    const url = 'http' + '://' + host + uri;
+
+    fetch(url, { method: 'POST'})
+    .then(async response => {
+        const channel = await response.json();
+
+        // Subscribe to events from the created channel
+        subscribe(channel.id, 'channel');
+    })
+    .catch(err => console.log(err));
+}
+
+async function subscribe(id, resource) {
+    if (resource === undefined || id === undefined) return
+
+    const uri = `/ari/applications/${app}/subscription?api_key=${key}&eventSource=${resource}:${id}`;
+    const url = 'http' + '://' + host + uri;
+
+    fetch(url, { method: 'POST' })
+    .catch(err => console.log(err))
+}
+
+function formatNumber(tel) {
+    if (!tel) return
+    
+    tel = tel.toString();
+    if (/^\+\d{11}$/.test(tel)) return tel;
+
+    tel = '+' + tel.replaceAll(/\D/g, '');
+    if (tel.length === 12) return tel
+}
