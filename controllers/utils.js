@@ -10,3 +10,7 @@ export function testRegExp(pairs) {
 
     return true
 }
+
+export function createContext(user_id, script_id) {
+    return `u-${user_id}:s-${script_id}`
+}
