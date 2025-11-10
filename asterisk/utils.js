@@ -19,12 +19,18 @@ export async function originate(to, from, context, endpoint) {
     const uri = `/ari/channels?api_key=${key}&endpoint=PJSIP/${to}@${endpoint}&extension=${to}&context=${context}&priority=1&callerId=${from}`;
     const url = 'http' + '://' + host + uri;
 
-    fetch(url, { method: 'POST'})
+    return await fetch(url, { method: 'POST'})
     .then(async response => {
         const channel = await response.json();
 
         // Subscribe to events from the created channel
         subscribe(channel.id, 'channel');
+
+        return {
+            id: channel.id, 
+            from: decodeURIComponent(from), 
+            to: decodeURIComponent(to)
+        }
     })
     .catch(err => console.log(err));
 }
