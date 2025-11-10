@@ -43,8 +43,10 @@ function formatNumber(tel) {
     if (!tel) return
     
     tel = tel.toString();
-    if (/^\+\d{11}$/.test(tel)) return tel;
+    if (/^\+1\d{10}$/.test(tel)) return tel;
 
-    tel = '+' + tel.replaceAll(/\D/g, '');
-    if (tel.length === 12) return tel
+    tel = tel.replaceAll(/\D/g, '');
+    tel = (tel[0] == 1) ? tel : '1' + tel
+    
+    if (tel.length === 11) return '+' + tel
 }
