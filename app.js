@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import sheetsRouter from './routes/sheets.js';
+import ws from './asterisk/socket.js'
+import dialerRouter from './routes/dialer.js';
 import fileUpload from 'express-fileupload';
 
 ['uncaughtException', 'unhandledRejection'].forEach(event => {
@@ -23,5 +25,6 @@ app.use(fileUpload({
 }));
 
 app.use('/sheets', sheetsRouter);
+app.use('/dialer', dialerRouter);
 
 app.listen(port, () => console.log(`Listening on port >> ${port}`));
