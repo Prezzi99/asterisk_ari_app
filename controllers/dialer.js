@@ -2,6 +2,7 @@ import { getCampaignResources } from "../database/utils.js";
 import { originate } from '../asterisk/utils.js';
 import { createContext, testRegExp } from "./utils.js";
 import * as xlsx from 'xlsx';
+import { cacheChannelDetails } from '../redis/utils.js';
 
 const concurrency = +process.env.CONCURRENT_CALLS;
 
@@ -38,8 +39,11 @@ export async function start(req, res) {
     if (!from || !numbers.length) return res.status(404).send('missing_script_caller_id_or_phone_numbers.');
 
     const context = createContext(user_id, script_id);
-    
-    for (let i = start; i < concurrency + start; i++) originate(numbers[i], from, context, endpoint);
+   
+    for (let i = start; i < concurrency + start; i++) {
+        originate(numbers[i], from, context, endpoint)
+        .then(channel => cacheChannelDetails(channel.id, channel.from, channel.to, user_id))
+    }
 
     // TODO: Cache the user's campaing progress and resources
     // TODO: Cache the state of the user's dialer
