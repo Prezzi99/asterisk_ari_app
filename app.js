@@ -20,7 +20,7 @@ cache.connect();
 const app = express();
 const port = process.env.PORT || 7070;
 
-app.use(cors( {origin: '*'} ));
+app.use(cors( {origin: true, credentials: true} )); // TODO: Do not use {origin: true} in production.
 
 app.use(fileUpload({
     abortOnLimit: true, 
@@ -37,6 +37,6 @@ app.use('/auth', authRouter);
 const server = createServer({
     key: readFileSync("./certs/localhost+2-key.pem"),
     cert: readFileSync("./certs/localhost+2.pem")
-}, app)
+}, app);
 
 server.listen(port, () => console.log(`Listening on port >> ${port}`));
