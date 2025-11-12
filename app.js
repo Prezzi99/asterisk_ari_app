@@ -4,6 +4,7 @@ import sheetsRouter from './routes/sheets.js';
 import cache from './redis/config.js';
 import ws from './asterisk/socket.js'
 import dialerRouter from './routes/dialer.js';
+import authRouter from './routes/auth.js';
 import fileUpload from 'express-fileupload';
 
 cache.connect();
@@ -29,5 +30,6 @@ app.use(fileUpload({
 
 app.use('/sheets', sheetsRouter);
 app.use('/dialer', dialerRouter);
+app.use('/auth', authRouter);
 
 app.listen(port, () => console.log(`Listening on port >> ${port}`));
