@@ -1,9 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import sheetsRouter from './routes/sheets.js';
+import cache from './redis/config.js';
 import ws from './asterisk/socket.js'
 import dialerRouter from './routes/dialer.js';
 import fileUpload from 'express-fileupload';
+
+cache.connect();
 
 ['uncaughtException', 'unhandledRejection'].forEach(event => {
     process.on(event, (stack) => {
