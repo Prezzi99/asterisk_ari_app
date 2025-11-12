@@ -6,7 +6,7 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     `password` VARCHAR(255),
     joined DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    balance INT NOT NULL DEFAULT 0 -- The users credit for calling
+    balance DECIMAL(7,3) NOT NULL DEFAULT 0 -- The users credit for calling
 );
 
 CREATE TABLE sheets (
