@@ -6,6 +6,8 @@ import ws from './asterisk/socket.js'
 import dialerRouter from './routes/dialer.js';
 import authRouter from './routes/auth.js';
 import fileUpload from 'express-fileupload';
+import { createServer } from 'https';
+import { readFileSync } from 'fs';
 
 cache.connect();
 
@@ -32,4 +34,9 @@ app.use('/sheets', sheetsRouter);
 app.use('/dialer', dialerRouter);
 app.use('/auth', authRouter);
 
-app.listen(port, () => console.log(`Listening on port >> ${port}`));
+const server = createServer({
+    key: readFileSync("./certs/localhost+2-key.pem"),
+    cert: readFileSync("./certs/localhost+2.pem")
+}, app)
+
+server.listen(port, () => console.log(`Listening on port >> ${port}`));
