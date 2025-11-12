@@ -8,6 +8,9 @@ import authRouter from './routes/auth.js';
 import fileUpload from 'express-fileupload';
 import { createServer } from 'https';
 import { readFileSync } from 'fs';
+import { WebSocketServer } from 'ws';
+import { verifyToken } from './utils.js';
+import { getBalance } from './database/utils.js';
 
 cache.connect();
 
@@ -38,5 +41,21 @@ const server = createServer({
     key: readFileSync("./certs/localhost+2-key.pem"),
     cert: readFileSync("./certs/localhost+2.pem")
 }, app);
+
+const wss = new WebSocketServer({
+    server,
+    clientTracking: true
+});
+
+wss.on('connection', async (socket, req) => {
+   const user_id = verifyToken(req.headers.cookie);
+
+   if (user_id === -1) return socket.close(1000, 'invalid_token');
+
+   socket.user = user_id;
+
+   getBalance(user_id)
+   .then(balance => cache.hSet('user:balance', user_id.toString(), balance.toString()));
+});
 
 server.listen(port, () => console.log(`Listening on port >> ${port}`));
