@@ -4,7 +4,7 @@ export async function saveSheet(user_id, title, file) {
     // Convert buffer to hex
     file = file.toString('hex');
 
-    return await pool.query(
+    pool.query(
         `INSERT INTO sheets (user_id, title, content) VALUES (?, ?, UNHEX(?))`,
         [user_id, title, file]
     );
@@ -25,4 +25,9 @@ export async function getCampaignResources(user_id, sheet_id, script_id, caller_
         phone_number: dataset[0][2][0]?.phone_number,
         endpoint: dataset[0][2][0]?.internal_name
     }
+}
+
+export async function getBalance(id) {
+    const [result] = await pool.query('SELECT balance FROM users WHERE id = ?', id);
+    return result[0].balance
 }
