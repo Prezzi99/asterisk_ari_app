@@ -11,8 +11,12 @@ import { readFileSync } from 'fs';
 import { WebSocketServer } from 'ws';
 import { verifyToken } from './utils.js';
 import { getBalance } from './database/utils.js';
+import { getRate } from './database/utils.js';
 
 cache.connect();
+
+getRate(process.env.CALLING_RATE_ID || 1)
+.then(rate => process.env.RATE_PER_MIN = rate);
 
 ['uncaughtException', 'unhandledRejection'].forEach(event => {
     process.on(event, (stack) => {
