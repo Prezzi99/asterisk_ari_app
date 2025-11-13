@@ -1,3 +1,8 @@
+CREATE TABLE calling_rates_per_min (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    rate DECIMAL(4,3) NOT NULL
+);
+
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(50) NOT NULL,

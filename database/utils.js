@@ -31,3 +31,8 @@ export async function getBalance(id) {
     const [result] = await pool.query('SELECT balance FROM users WHERE id = ?', id);
     return result[0].balance
 }
+
+export async function getRate(id) {
+    const [result] = await pool.query('SELECT rate from calling_rates_per_min WHERE id = ?', id)
+    return result[0].rate;
+}
