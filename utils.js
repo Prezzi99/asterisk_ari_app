@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import cache from './redis/config.js';
 
 export function verifyToken(cookie) {
     let token = /b_earer_token=.+/.exec(cookie);
@@ -33,5 +34,5 @@ export async function billUser(user, call_answered, call_ended) {
 
     user_balance = +user_balance - cost;
     
-    cache.hSet(key, user.toString(), user_balance.toString());
+    cache.hSet(key, user.toString(), user_balance.toFixed(3));
 }
