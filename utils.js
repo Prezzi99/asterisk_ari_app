@@ -17,3 +17,21 @@ export function verifyToken(cookie) {
 
     return user_id
 }
+
+export async function billUser(user, call_answered, call_ended) {
+    const cost_per_min = +process.env.RATE_PER_MIN;
+
+    const key = 'user:balance';
+    let user_balance = await cache.hGet(key, user.toString());
+
+    call_answered = new Date(call_answered);
+    call_ended = new Date(call_ended);
+
+    const duration_in_mins = (call_ended - call_answered) / 60000;
+
+    const cost = +(cost_per_min * duration_in_mins).toFixed(3);
+
+    user_balance = +user_balance - cost;
+    
+    cache.hSet(key, user.toString(), user_balance.toString());
+}

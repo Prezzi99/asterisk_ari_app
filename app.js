@@ -42,7 +42,7 @@ const server = createServer({
     cert: readFileSync("./certs/localhost+2.pem")
 }, app);
 
-const wss = new WebSocketServer({
+export const wss = new WebSocketServer({
     server,
     clientTracking: true
 });
