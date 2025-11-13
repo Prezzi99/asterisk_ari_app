@@ -1,6 +1,7 @@
 import { WebSocket } from 'ws';
 import { config } from 'dotenv';
-import { setChannelAnswered, setChannelEnded } from '../redis/utils.js';
+import { getChannelDetails, setChannelAnswered, setChannelEnded } from '../redis/utils.js';
+import events from '../events.js';
 
 config({path: './config.env'});
 
@@ -22,12 +23,18 @@ ws.on('message', async (event) => {
         const timestamp = event.timestamp;
 
         switch (event.type) {
-        case 'ChannelStateChange':
-            if (state === 'Up') setChannelAnswered(id, timestamp)
-            break
-        case 'ChannelDestroyed':
-            setChannelEnded(id, timestamp);
-            break
+            case 'ChannelStateChange':
+                if (state === 'Up') setChannelAnswered(id, timestamp)
+                break
+            case 'ChannelDestroyed':
+                setChannelEnded(id, timestamp);
+
+                // TODO: Bill the user for the channel
+                const channel = await getChannelDetails(id);
+
+                events.emit('bill-user', channel.user, channel.answered || timestamp, timestamp);
+                
+                break
         }
     }
 });
