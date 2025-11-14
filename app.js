@@ -12,6 +12,7 @@ import { WebSocketServer } from 'ws';
 import { verifyToken } from './utils.js';
 import { getBalance } from './database/utils.js';
 import { getRate } from './database/utils.js';
+import { authGuard } from './middleware/gaurd.js';
 
 cache.connect();
 
@@ -37,9 +38,10 @@ app.use(fileUpload({
     }
 }));
 
+app.use('/auth', authRouter);
+app.use(authGuard);
 app.use('/sheets', sheetsRouter);
 app.use('/dialer', dialerRouter);
-app.use('/auth', authRouter);
 
 const server = createServer({
     key: readFileSync("./certs/localhost+2-key.pem"),
