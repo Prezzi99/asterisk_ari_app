@@ -1,4 +1,4 @@
-import { saveSheet } from '../database/utils.js';
+import { saveSheet, getSheetContent, getSheets } from '../database/utils.js';
 import { testRegExp } from './utils.js';
 import * as xlsx from 'xlsx';
 
@@ -41,4 +41,33 @@ export async function upload(req, res) {
         
         return res.status(500).send('Oops, something went wrong.');
     });
+}
+
+export async function fetch(req, res) {
+    const { user_id } = req.body;
+    const { sheet_id } = req.params;
+
+    if (!/^\d+$/.test(user_id)) return res.status(400).send('')
+    
+    if (sheet_id) {
+        if (!/^\d+$/.test(sheet_id)) return res.status(400).send('')
+
+        const sheet = await getSheetContent(sheet_id, user_id);
+        
+        if (sheet === undefined) return res.status(404).send('')
+
+        const workbook = xlsx.read(sheet, {
+            raw: true,
+            type: 'buffer',
+            cellFormula: false
+        });
+
+        const sheet_as_json = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { blankrows: false, defval: '' });
+
+        return res.status(200).json(sheet_as_json);
+    }
+    else {
+        const sheets = await getSheets(user_id);
+        return res.status(200).json(sheets);
+    }
 }
