@@ -9,6 +9,8 @@ export async function authGuard(req, res, next) {
     try {
         const { user_id } = jwt.verify(token, process.env.JWT_SECRET);
 
+        if (req.body === undefined) req.body = {}
+
         req.body.user_id = user_id;
 
         next();
