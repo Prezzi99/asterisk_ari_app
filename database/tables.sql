@@ -24,6 +24,15 @@ CREATE TABLE sheets (
     UNIQUE(user_id, title)
 );
 
+CREATE TABLE agents (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(11) NOT NULL UNIQUE,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 CREATE TABLE scripts ( -- 
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
