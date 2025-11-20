@@ -36,3 +36,13 @@ export async function getRate(id) {
     const [result] = await pool.query('SELECT rate from calling_rates_per_min WHERE id = ?', id)
     return result[0].rate;
 }
+
+export async function getSheetContent(sheet_id, user_id) {
+    const [result] = await pool.query('SELECT content FROM sheets WHERE id = ? AND user_id = ?', [sheet_id, user_id])
+    return result[0]?.content
+}
+
+export async function getSheets(user_id) {
+    const [result] = await pool.query('SELECT id, title FROM sheets WHERE user_id = ? ORDER BY id DESC',user_id)
+    return result
+}
