@@ -5,6 +5,7 @@ import cache from './redis/config.js';
 import ws from './asterisk/socket.js'
 import dialerRouter from './routes/dialer.js';
 import authRouter from './routes/auth.js';
+import agentsRouter from './routes/agents.js';
 import fileUpload from 'express-fileupload';
 import { createServer } from 'https';
 import { readFileSync } from 'fs';
@@ -38,10 +39,13 @@ app.use(fileUpload({
     }
 }));
 
+app.use(express.json());
+
 app.use('/auth', authRouter);
 app.use(authGuard);
 app.use('/sheets', sheetsRouter);
 app.use('/dialer', dialerRouter);
+app.use('/agents', agentsRouter);
 
 const server = createServer({
     key: readFileSync("./certs/localhost+2-key.pem"),
