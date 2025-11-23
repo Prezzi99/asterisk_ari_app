@@ -2,7 +2,7 @@ import { getCampaignResources } from "../database/utils.js";
 import { originate } from '../asterisk/utils.js';
 import { createContext, testRegExp } from "./utils.js";
 import * as xlsx from 'xlsx';
-import { cacheChannelDetails, cacheCampaignResources } from '../redis/utils.js';
+import { cacheChannelDetails, cacheCampaignResources, getDialerStatus, setDialerStatus } from '../redis/utils.js';
 
 const concurrency = +process.env.CONCURRENT_CALLS;
 
@@ -16,7 +16,8 @@ export async function start(req, res) {
 
     if (!testRegExp(pairs)) return res.status(400).send('');
 
-    if (process.env[`USER_${user_id}_DIALER_STATUS`] == 1) return res.status(409).send('dialer_already_on.');
+    const dialer_status = await getDialerStatus(user_id);
+    if (dialer_status == 1 || dialer_status == -1) return res.status(409).send('dialer_already_on.');
 
     let from, numbers, endpoint;
 
@@ -45,7 +46,7 @@ export async function start(req, res) {
         .then(channel => cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i))
     }
 
-    process.env[`USER_${user_id}_DIALER_STATUS`] = 1;
+    setDialerStatus(user_id, 1);
 
     // TODO: Cache the user's campaing progress and resources
     cacheCampaignResources(numbers, script_id, user_id);
