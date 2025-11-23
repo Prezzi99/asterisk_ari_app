@@ -1,9 +1,9 @@
 import cache from './config.js';
 
-export async function cacheChannelDetails(id, from, to, user) {
+export async function cacheChannelDetails(id, from, to, user, i) {
     const key = createKey('channel', id);
 
-    cache.hSet(key, ['user', user.toString(), 'to', to, 'from', from]);
+    cache.hSet(key, ['user', user.toString(), 'to', to, 'from', from, 'sheet_index', i.toString()]);
 }
 
 export async function setChannelAnswered(id, timestamp) {

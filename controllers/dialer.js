@@ -42,7 +42,7 @@ export async function start(req, res) {
    
     for (let i = start; i < concurrency + start; i++) {
         originate(numbers[i], from, context, endpoint)
-        .then(channel => cacheChannelDetails(channel.id, channel.from, channel.to, user_id))
+        .then(channel => cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i))
     }
 
     // TODO: Cache the user's campaing progress and resources
