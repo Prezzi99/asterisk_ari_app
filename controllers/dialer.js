@@ -48,8 +48,7 @@ export async function start(req, res) {
 
     setDialerStatus(user_id, 1);
 
-    // TODO: Cache the user's campaing progress and resources
-    cacheCampaignResources(numbers, script_id, user_id);
+    cacheCampaignResources(user_id, numbers, script_id, sheet_id);
 
     return res.status(200).send('dialer_initialized.');
 }
