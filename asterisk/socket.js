@@ -27,12 +27,12 @@ ws.on('message', async (event) => {
                 if (state === 'Up') {
                     setChannelAnswered(id, timestamp);
 
-                    const { user:user_id, to:callee } = await getChannelDetails(id);
-                    events.emit('call-status', user_id, 'answered', callee);
+                    const { user:user_id, sheet_index} = await getChannelDetails(id);
+                    events.emit('call-status', user_id, 'answered', sheet_index);
                 }
                 else if (state === 'Ringing') {
-                    const { user:user_id, to:callee } = await getChannelDetails(id);
-                    events.emit('call-status', user_id, 'ringing', callee);
+                    const { user:user_id, sheet_index} = await getChannelDetails(id);
+                    events.emit('call-status', user_id, 'ringing', sheet_index);
                 }
                 break
             case 'ChannelDestroyed':
@@ -42,7 +42,7 @@ ws.on('message', async (event) => {
                 const channel = await getChannelDetails(id);
 
                 events.emit('bill-user', channel.user, channel.answered || timestamp, timestamp);
-                events.emit('call-status', channel.user, 'ended', channel.to)
+                events.emit('call-status', channel.user, 'ended', channel.sheet_index)
                 break
         }
     }
