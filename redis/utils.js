@@ -21,6 +21,16 @@ export async function getChannelDetails(id) {
     return await cache.hGetAll(key)
 }
 
+export async function cacheCampaignResources(numbers, script_id, user_id) {
+    const leads_key = `user:${user_id}:leads`;
+
+    const pipeline = cache.multi();
+    numbers.forEach(number => pipeline.lPush(leads_key, number.toString()));
+
+    pipeline.set(`user:${user_id}:script`, script_id.toString());
+    pipeline.exec();
+}
+
 function createKey(resource, id) {
     return resource + ':' + id;
 }
