@@ -15,6 +15,7 @@ import { verifyToken } from './utils.js';
 import { getBalance } from './database/utils.js';
 import { getRate } from './database/utils.js';
 import { authGuard } from './middleware/gaurd.js';
+import { setDialerStatus, getDialerStatus } from './redis/utils.js';
 
 cache.connect();
 
@@ -68,6 +69,13 @@ wss.on('connection', async (socket, req) => {
 
    getBalance(user_id)
    .then(balance => cache.hSet('user:balance', user_id.toString(), balance.toString()));
+
+   socket.on('close', () => {
+      getDialerStatus(socket.user)
+      .then(status => {
+        if (status == 1) setDialerStatus(socket.user, -1);
+      })
+   })
 });
 
 server.listen(port, () => console.log(`Listening on port >> ${port}`));
