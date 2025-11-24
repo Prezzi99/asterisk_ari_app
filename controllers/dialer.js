@@ -52,3 +52,24 @@ export async function start(req, res) {
 
     return res.status(200).send('dialer_initialized.');
 }
+
+export async function toggle(req, res) {
+    const { user_id } = req.body;
+    
+    const pairs = [
+        [/^\d+$/, [user_id]],
+    ];
+
+    if (!testRegExp(pairs)) return res.status(400).send('');
+
+    const dialer_status = await getDialerStatus(user_id);
+
+    if (dialer_status) {
+        setDialerStatus(user_id, -(dialer_status));
+
+        const note =  (-(dialer_status) === 1) ? 'dialer_resumed' : 'dialer_paused';
+        return res.status(200).send(note);
+    }
+    
+    return res.status(409).send('dialer_not_on.');
+}
