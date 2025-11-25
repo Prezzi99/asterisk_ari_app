@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { billUser } from './utils.js';
-import { wss } from './app.js'
+import { wss, server } from './app.js';
+import cache from './redis/config.js';
 
 const emitter = new EventEmitter();
 
@@ -16,6 +17,14 @@ emitter.on('call-status', (user_id, status, sheet_index) => {
 
         if (client.user == user_id) client.send(message);
     });
+});
+
+emitter.on('shutdown', () => {
+    server.close(() => {
+        console.log('Terminating Node.js process.........');
+        cache.close();
+        process.exit();
+    })
 });
 
 export default emitter;

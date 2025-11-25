@@ -50,7 +50,7 @@ app.use('/dialer', dialerRouter);
 app.use('/agents', agentsRouter);
 app.use('/resources', ResourcesRouter);
 
-const server = createServer({
+export const server = createServer({
     key: readFileSync("./certs/localhost+2-key.pem"),
     cert: readFileSync("./certs/localhost+2.pem")
 }, app);
