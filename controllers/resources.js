@@ -1,4 +1,5 @@
 import pool from '../database/config.js';
+import { getDialerStatus, getOngoingCampaignResources as getCampaignResources } from '../redis/utils.js';
 
 export async function fetch(req, res) {
     const {user_id} = req.body;
@@ -12,5 +13,12 @@ export async function fetch(req, res) {
         [user_id, user_id, user_id]
     );
 
-    return res.status(200).json(resources);
+    const dialer_status = await getDialerStatus(user_id);
+
+    let ongoing_campaign;
+    if (dialer_status) {
+        ongoing_campaign = await getCampaignResources(user_id);
+    }
+
+    return res.status(200).json({resources, ongoing_campaign});
 }
