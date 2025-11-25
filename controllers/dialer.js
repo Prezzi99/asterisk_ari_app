@@ -2,7 +2,7 @@ import { getCampaignResources } from "../database/utils.js";
 import { originate } from '../asterisk/utils.js';
 import { createContext, testRegExp } from "./utils.js";
 import * as xlsx from 'xlsx';
-import { cacheChannelDetails, cacheCampaignResources, getDialerStatus, setDialerStatus } from '../redis/utils.js';
+import { cacheChannelDetails, cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources } from '../redis/utils.js';
 
 const concurrency = +process.env.CONCURRENT_CALLS;
 
@@ -72,4 +72,18 @@ export async function toggle(req, res) {
     }
     
     return res.status(409).send('dialer_not_on.');
+}
+
+export async function stop(req, res) {
+    const { user_id } = req.body;
+    
+    const pairs = [
+        [/^\d+$/, [user_id]],
+    ];
+
+    if (!testRegExp(pairs)) return res.status(400).send('');
+
+    dumpCampaignResources(user_id);
+
+    return res.status(200).send('dialer_stopped.')
 }
