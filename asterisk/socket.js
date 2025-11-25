@@ -50,6 +50,8 @@ ws.on('message', async (event) => {
     }
 });
 
-ws.on('close', async () => console.log('ARI socket closed.'));
+ws.on('error', () => events.emit('shutdown'));
+
+ws.on('close', async () => events.emit('shutdown'));
 
 export default ws;

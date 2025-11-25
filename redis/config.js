@@ -1,4 +1,5 @@
 import { createClient } from 'redis';
+import events from '../events.js';
 
 const cache = createClient({
     socket: {
@@ -7,7 +8,9 @@ const cache = createClient({
     }
 })
 .on('error', (error) => {
-    throw new Error(error)
-});
+    events.emit('shutdown');
+    throw new Error(error);
+})
+.on('end', () => events.emit('shutdown'));
 
 export default cache;
