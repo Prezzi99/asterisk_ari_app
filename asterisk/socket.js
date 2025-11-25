@@ -42,10 +42,14 @@ ws.on('message', async (event) => {
                 const channel = await getChannelDetails(id);
 
                 events.emit('bill-user', channel.user, channel.answered || timestamp, timestamp);
-                events.emit('call-status', channel.user, 'ended', channel.sheet_index)
+
+                const status = (channel.answered) ? 'ended' : 'no answer';
+                events.emit('call-status', channel.user, status, channel.sheet_index);
                 break
         }
     }
 });
+
+ws.on('close', async () => console.log('ARI socket closed.'));
 
 export default ws;
