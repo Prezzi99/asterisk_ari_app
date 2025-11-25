@@ -32,6 +32,22 @@ export async function cacheCampaignResources(user_id, numbers, script_id, sheet_
     pipeline.exec();
 }
 
+export async function cacheCallStatus(user_id, call_status) {
+    const key = `user:${user_id}:call:status:report`;
+    cache.rPush(key, call_status);
+}
+
+export async function getOngoingCampaignResources(user_id) {
+    const prefix = `user:${user_id}:`;
+
+    const pipeline = cache.multi();
+
+    pipeline.get(prefix + 'sheet:id');
+    pipeline.lRange(prefix + 'call:status:report', 0, -1)
+
+    return await pipeline.exec();
+}
+
 export async function setDialerStatus(user_id, status) {
     const key = `user:${user_id}:dialer:status`;
 
