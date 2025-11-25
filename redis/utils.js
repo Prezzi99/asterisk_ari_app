@@ -60,6 +60,16 @@ export async function getDialerStatus(user_id) {
     return await cache.get(key);
 }
 
+export async function dumpCampaignResources(user_id) {
+    cache.keys(`user:${user_id}*`)
+    .then(keys => {
+        const pipeline = cache.multi();
+        keys.forEach(key => pipeline.del(key));
+
+        pipeline.exec();
+    });
+}
+
 function createKey(resource, id) {
     return resource + ':' + id;
 }
