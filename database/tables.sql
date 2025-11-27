@@ -28,8 +28,9 @@ CREATE TABLE agents (
 	id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     full_name VARCHAR(100) NOT NULL,
-    phone_number VARCHAR(11) NOT NULL UNIQUE,
+    phone_number VARCHAR(11) NOT NULL,
     
+    UNIQUE(user_id, phone_number),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
