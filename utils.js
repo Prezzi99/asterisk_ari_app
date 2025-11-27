@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 import cache from './redis/config.js';
+import { cacheChannelDetails } from './redis/utils.js';
+import { originate } from './asterisk/utils.js';
 
 export function verifyToken(cookie) {
     let token = /b_earer_token=.+/.exec(cookie);
@@ -35,4 +37,16 @@ export async function billUser(user, call_answered, call_ended) {
     user_balance = +user_balance - cost;
     
     cache.hSet(key, user.toString(), user_balance.toFixed(3));
+}
+
+export async function makeCall(details) {
+    const { to, from, context, endpoint } = details;
+
+    originate(to, from, context, endpoint)
+    .then(channel => {
+        const { user_id, i } = details;
+        
+        if (!channel) return
+        cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i);
+    });
 }
