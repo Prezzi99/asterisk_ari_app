@@ -46,3 +46,11 @@ export async function getSheets(user_id) {
     const [result] = await pool.query('SELECT id, title FROM sheets WHERE user_id = ? ORDER BY id DESC',user_id)
     return result
 }
+
+export async function getEndpoints() {
+    const [[ endpoints ]] = await pool.query(
+        'SELECT JSON_ARRAYAGG(internal_name) AS names FROM itsps'
+    )
+
+    return endpoints.names
+}
