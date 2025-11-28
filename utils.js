@@ -50,3 +50,58 @@ export async function makeCall(details) {
         cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i);
     });
 }
+
+export class Queue {
+    #endpoint_output_count = new Object();
+    #endpoints;
+    #round_robin_pointer = 0;
+    #queued_calls = new Array();
+    #max_output_per_endpoint;
+
+    constructor(endpoints, endpoint_cap) {
+        this.#endpoints = endpoints;
+        this.#max_output_per_endpoint = endpoint_cap;
+    }
+
+    queue(details) {
+        let endpoint = this.#endpoints[this.#round_robin_pointer];
+        if (endpoint === undefined) return
+
+        details.endpoint = endpoint;
+        this.#queued_calls.push(details);
+
+        this.#incrementOutputCount(endpoint);
+        this.#setRoundRobinPointer();
+
+        const at_max_capacity = this.#endpoint_output_count[endpoint] == this.#max_output_per_endpoint;
+        if (at_max_capacity) this.#removeEndpoint(endpoint);
+    }
+
+    dequeue() {
+        return this.#queued_calls.shift();
+    }
+
+    reset(endpoints) {
+        this.#endpoints = endpoints;
+        this.#round_robin_pointer = 0;
+        this.#endpoint_output_count = new Object();
+    }
+
+    #setRoundRobinPointer() {
+        const current_index = this.#round_robin_pointer;
+        this.#round_robin_pointer = (current_index + 1) % this.#endpoints.length;
+    }
+
+    #incrementOutputCount(endpoint) {
+        let count = this.#endpoint_output_count[endpoint] || 0;
+        this.#endpoint_output_count[endpoint] = ++count;
+    }
+
+    #removeEndpoint(name) {
+        const index = this.#endpoints.indexOf(name);
+        this.#endpoints.splice(index, 1);
+
+        // Reset reset_round_robin_pointer
+        this.#round_robin_pointer = 0;
+    }
+}
