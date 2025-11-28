@@ -1,8 +1,8 @@
 import { getCampaignResources } from "../database/utils.js";
-import { originate } from '../asterisk/utils.js';
 import { createContext, testRegExp } from "./utils.js";
 import * as xlsx from 'xlsx';
-import { cacheChannelDetails, cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources } from '../redis/utils.js';
+import { cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources } from '../redis/utils.js';
+import events from '../events.js'
 
 const concurrency = +process.env.CONCURRENT_CALLS;
 
@@ -42,8 +42,8 @@ export async function start(req, res) {
     const context = createContext(user_id, script_id);
    
     for (let i = start; i < concurrency + start; i++) {
-        originate(numbers[i], from, context, endpoint)
-        .then(channel => cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i))
+        if (numbers[i] === undefined) continue
+        events.emit('queue_call', { to: numbers[i], from, context, user_id, i });
     }
 
     setDialerStatus(user_id, 1);
