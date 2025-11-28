@@ -11,8 +11,8 @@ import fileUpload from 'express-fileupload';
 import { createServer } from 'https';
 import { readFileSync } from 'fs';
 import { WebSocketServer } from 'ws';
-import { verifyToken } from './utils.js';
-import { getBalance } from './database/utils.js';
+import { verifyToken, makeCall, Queue } from './utils.js';
+import { getBalance, getEndpoints } from './database/utils.js';
 import { getRate } from './database/utils.js';
 import { authGuard } from './middleware/gaurd.js';
 import { setDialerStatus, getDialerStatus } from './redis/utils.js';
@@ -79,3 +79,14 @@ wss.on('connection', async (socket, req) => {
 });
 
 server.listen(port, () => console.log(`Listening on port >> ${port}`));
+
+const dequeue_interval = process.env.DEQUEUE_INTERVAL || 5e+3;
+const endpoint_max_output = process.env.MAX_OUTPUT_PER_ENDPOINT || 50;
+
+const endpoints = await getEndpoints();
+export const queue = new Queue([...endpoints], endpoint_max_output);
+
+setInterval(() => {
+    const details = queue.dequeue();
+    if (details) makeCall(details);
+}, dequeue_interval);
