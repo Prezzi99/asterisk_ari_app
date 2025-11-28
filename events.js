@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { billUser } from './utils.js';
-import { wss, server } from './app.js';
+import { wss, server, queue } from './app.js';
 import cache from './redis/config.js';
 import { cacheCallStatus } from './redis/utils.js';
 
@@ -27,5 +27,7 @@ emitter.on('shutdown', () => {
         process.exit();
     })
 });
+
+emitter.on('queue_call', (details) => queue.queue(details));
 
 export default emitter;
