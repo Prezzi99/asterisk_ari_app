@@ -7,6 +7,7 @@ import dialerRouter from './routes/dialer.js';
 import authRouter from './routes/auth.js';
 import agentsRouter from './routes/agents.js';
 import ResourcesRouter from './routes/resources.js';
+import scriptsRouter from './routes/scripts.js';
 import fileUpload from 'express-fileupload';
 import { createServer } from 'https';
 import { readFileSync } from 'fs';
@@ -49,6 +50,7 @@ app.use('/sheets', sheetsRouter);
 app.use('/dialer', dialerRouter);
 app.use('/agents', agentsRouter);
 app.use('/resources', ResourcesRouter);
+app.use('/scripts', scriptsRouter);
 
 export const server = createServer({
     key: readFileSync("./certs/localhost+2-key.pem"),
