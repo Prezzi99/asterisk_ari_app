@@ -38,7 +38,8 @@ CREATE TABLE scripts ( --
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     title VARCHAR(50) NOT NULL,
-    content TEXT, -- Dialplan for the corresponding context
+    content TEXT NOT NULL, -- Dialplan for the corresponding context
+    audio MEDIUMBLOB NOT NULL, -- No need to save more than the greeting
 
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

@@ -54,3 +54,13 @@ export async function getEndpoints() {
 
     return endpoints.names
 }
+
+export async function getScripts(user_id) {
+    const [result] = await pool.query('SELECT id, title FROM scripts WHERE user_id = ? ORDER BY id DESC', user_id)
+    return result
+}
+
+export async function getScriptAudio(script_id, user_id) {
+    const [result] = await pool.query('SELECT audio FROM scripts WHERE id = ? AND user_id = ?', [script_id, user_id]);
+    return result[0]?.audio
+}
