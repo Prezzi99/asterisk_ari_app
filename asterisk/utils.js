@@ -7,10 +7,7 @@ const host = process.env.ARI_HOST;
 const app = process.env.ARI_APP;
 
 export async function originate(to, from, context, endpoint) {
-    to = formatNumber(to);
-    from = formatNumber(from);
-    
-    if (to === undefined || from === undefined) return
+    if (!to || !from) return
 
     // Encode the '+' characters in the phone numbers
     to = encodeURIComponent(to);
@@ -43,16 +40,4 @@ async function subscribe(id, resource) {
 
     fetch(url, { method: 'POST' })
     .catch(err => console.log(err))
-}
-
-function formatNumber(tel) {
-    if (!tel) return
-    
-    tel = tel.toString();
-    if (/^\+1\d{10}$/.test(tel)) return tel;
-
-    tel = tel.replaceAll(/\D/g, '');
-    tel = (tel[0] == 1) ? tel : '1' + tel
-    
-    if (tel.length === 11) return '+' + tel
 }
