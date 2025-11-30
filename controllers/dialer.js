@@ -7,11 +7,11 @@ import events from '../events.js'
 const concurrency = +process.env.CONCURRENT_CALLS;
 
 export async function start(req, res) {
-    const { user_id, sheet_id, script_id, caller_id } = req.body;
+    const { user_id, sheet_id, script_id } = req.body;
     const start = +req.body.start || 0;
     
     const pairs = [
-        [/^\d+$/, [user_id, start, sheet_id, script_id, caller_id]],
+        [/^\d+$/, [user_id, start, sheet_id, script_id]],
     ];
 
     if (!testRegExp(pairs)) return res.status(400).send('');
@@ -19,9 +19,9 @@ export async function start(req, res) {
     const dialer_status = await getDialerStatus(user_id);
     if (dialer_status == 1 || dialer_status == -1) return res.status(409).send('dialer_already_on.');
 
-    let from, numbers, endpoint;
+    let caller_ids, numbers;
 
-    await getCampaignResources(user_id, sheet_id, script_id, caller_id)
+    await getCampaignResources(user_id, sheet_id, script_id)
     .then(async result => {
         if (!result.sheet || result.script_id != script_id) return
         const workbook = xlsx.read(result.sheet, {
@@ -30,20 +30,19 @@ export async function start(req, res) {
             cellFormula: false
         });
 
-        from = result.phone_number;
-        endpoint = result.endpoint;
+        caller_ids = result.caller_ids;
 
         const sheet_as_json = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { blankrows: false, defval: '' });
         numbers = sheet_as_json.map(row => row['Telephone']);
     });
 
-    if (!from || !numbers.length) return res.status(404).send('missing_script_caller_id_or_phone_numbers.');
+    if (!caller_ids.length || !numbers.length) return res.status(404).send('missing_script_caller_id_or_phone_numbers.');
 
     const context = createContext(user_id, script_id);
    
-    for (let i = start; i < concurrency + start; i++) {
+    for (let i = start, j = 0; i < concurrency + start; i++, j++) {
         if (numbers[i] === undefined) continue
-        events.emit('queue_call', { to: numbers[i], from, context, user_id, i });
+        events.emit('queue_call', { to: numbers[i], from: caller_ids[j], context, user_id, i });
     }
 
     setDialerStatus(user_id, 1);
