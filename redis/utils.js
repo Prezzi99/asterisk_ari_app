@@ -27,8 +27,8 @@ export async function cacheCampaignResources(user_id, numbers, script_id, sheet_
 
     const pipeline = cache.multi();
 
-    numbers.forEach(number => pipeline.lPush(leads_key, number.toString()));
-    caller_ids.forEach(caller_id => pipeline.lPush(caller_ids_key, caller_id.toString()));
+    numbers.forEach(number => pipeline.rPush(leads_key, number.toString()));
+    caller_ids.forEach(caller_id => pipeline.rPush(caller_ids_key, caller_id.toString()));
 
     pipeline.set(`user:${user_id}:script:id`, script_id.toString());
     pipeline.set(`user:${user_id}:sheet:id`, sheet_id.toString());
