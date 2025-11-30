@@ -51,6 +51,18 @@ export async function makeCall(details) {
     });
 }
 
+function formatNumber(tel) {
+    if (!tel) return
+    
+    tel = tel.toString();
+    if (/^\+1\d{10}$/.test(tel)) return tel;
+
+    tel = tel.replaceAll(/\D/g, '');
+    tel = (tel[0] == 1) ? tel : '1' + tel
+    
+    if (tel.length === 11) return '+' + tel
+}
+
 export class Queue {
     #endpoint_output_count = new Object();
     #endpoints;
