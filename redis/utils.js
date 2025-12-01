@@ -21,7 +21,7 @@ export async function getChannelDetails(id) {
     return await cache.hGetAll(key)
 }
 
-export async function cacheCampaignResources(user_id, numbers, script_id, sheet_id, caller_ids, start) {
+export async function cacheCampaignResources(user_id, numbers, script_id, sheet_id, caller_ids) {
     const leads_key = `user:${user_id}:leads`;
     const caller_ids_key = `user:${user_id}:caller_ids`
 
@@ -32,7 +32,6 @@ export async function cacheCampaignResources(user_id, numbers, script_id, sheet_
 
     pipeline.set(`user:${user_id}:script:id`, script_id.toString());
     pipeline.set(`user:${user_id}:sheet:id`, sheet_id.toString());
-    pipeline.set(`user:${user_id}:campaign:start:index`, start.toString());
 
     pipeline.exec();
 }

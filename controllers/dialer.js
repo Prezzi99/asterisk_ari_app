@@ -47,7 +47,7 @@ export async function start(req, res) {
 
     setDialerStatus(user_id, 1);
 
-    cacheCampaignResources(user_id, numbers, script_id, sheet_id, caller_ids, start);
+    cacheCampaignResources(user_id, numbers, script_id, sheet_id, caller_ids);
 
     return res.status(200).send('dialer_initialized.');
 }
