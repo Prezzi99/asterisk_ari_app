@@ -48,7 +48,8 @@ export async function getOngoingCampaignResources(user_id) {
     const pipeline = cache.multi();
 
     pipeline.get(prefix + 'sheet:id');
-    pipeline.lRange(prefix + 'call:status:report', 0, -1)
+    pipeline.get(prefix + 'campaign:start:index');
+    pipeline.lRange(prefix + 'call:status:report', 0, -1);
 
     return await pipeline.exec();
 }
