@@ -1,8 +1,8 @@
 import { getCampaignResources } from "../database/utils.js";
 import { createContext, testRegExp } from "./utils.js";
 import * as xlsx from 'xlsx';
-import { cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources } from '../redis/utils.js';
-import events from '../events.js'
+import { cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources, setCampaignIndicies } from '../redis/utils.js';
+import events from '../events.js';
 
 const concurrency = +process.env.CONCURRENT_CALLS;
 
@@ -48,6 +48,7 @@ export async function start(req, res) {
     setDialerStatus(user_id, 1);
 
     cacheCampaignResources(user_id, numbers, script_id, sheet_id, caller_ids);
+    setCampaignIndicies(user_id, start, start + concurrency, concurrency, caller_ids.length);
 
     return res.status(200).send('dialer_initialized.');
 }
