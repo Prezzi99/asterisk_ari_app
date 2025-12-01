@@ -8,9 +8,8 @@ export async function fetch(req, res) {
 
     const [resources] = await pool.query(`
         SELECT id, title FROM sheets WHERE user_id = ? ORDER BY id DESC;
-        SELECT id, phone_number FROM dids WHERE user_id = ? ORDER BY id DESC;
         SELECT id, title FROM scripts WHERE user_id = ? ORDER BY id DESC;`, 
-        [user_id, user_id, user_id]
+        [user_id, user_id]
     );
 
     const dialer_status = await getDialerStatus(user_id);
