@@ -9,7 +9,7 @@ const emitter = new EventEmitter();
 emitter.on('bill-user', billUser);
 
 emitter.on('call-status', (user_id, status, sheet_index) => {
-    const should_cache = (/^ringing$|^ended$/.test(status)) ? false : true;
+    const should_cache = (/^ringing$|^ended$|^invalid number$/.test(status)) ? false : true;
 
     if (should_cache) cacheCallStatus(user_id, status);
     
