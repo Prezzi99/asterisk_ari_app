@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import cache from './redis/config.js';
 import { cacheChannelDetails } from './redis/utils.js';
 import { originate } from './asterisk/utils.js';
+import events from './events.js'
 
 export function verifyToken(cookie) {
     let token = /b_earer_token=.+/.exec(cookie);
@@ -40,12 +41,13 @@ export async function billUser(user, call_answered, call_ended) {
 }
 
 export async function makeCall(details) {
-    const { to, from, context, endpoint } = details;
+    const { from, context, endpoint, user_id, i } = details;
+    const to = formatNumber(details.to);
+
+    if (to === undefined) return events.emit('call-status', user_id, 'invalid number', i);
 
     originate(to, from, context, endpoint)
-    .then(channel => {
-        const { user_id, i } = details;
-        
+    .then(channel => {  
         if (!channel) return
         cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i);
     });
