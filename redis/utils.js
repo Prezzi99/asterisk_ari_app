@@ -79,3 +79,16 @@ export async function dumpCampaignResources(user_id) {
 function createKey(resource, id) {
     return resource + ':' + id;
 }
+
+export async function setCampaignIndicies(user_id, start_index, sheet_index, caller_id_index, count_caller_id) {
+    const key = `user:${user_id}:campaign:indicies`;
+
+    const pairs = [
+        'start_index', start_index.toString(),
+        'next_lead', sheet_index.toString(), 
+        'next_caller_id', caller_id_index.toString(),
+        'count_caller_id', count_caller_id.toString()
+    ]
+
+    cache.hSet(key, pairs);
+}
