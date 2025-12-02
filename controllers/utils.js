@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { getCampaignIndicies, getOngoingCampaignResources } from '../redis/utils.js'
 
 export function testRegExp(pairs) {
     for (let item of pairs) {
@@ -35,4 +36,23 @@ export async function hash(password) {
 
 export async function compare(password, hash) {
     return await bcrypt.compare(password, hash);
+}
+
+export async function getDetailsToContinueCampaign(user_id, concurrency) {
+    let { next_lead, next_caller_id } = await getCampaignIndicies(user_id)
+    .then(result => {
+        return {
+            next_lead: +result.next_lead,
+            next_caller_id: +result.next_caller_id % (+result.count_caller_id)
+        }
+    });
+
+    const args = {
+        lead_start: next_lead,
+        lead_end: next_lead + concurrency - 1
+    }
+
+    const [ script_id, numbers, caller_ids ] = await getOngoingCampaignResources(user_id, args);
+
+    return { script_id, numbers, caller_ids, next_lead, next_caller_id }
 }
