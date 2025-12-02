@@ -3,6 +3,7 @@ import { createContext, testRegExp } from "./utils.js";
 import * as xlsx from 'xlsx';
 import { cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources, setCampaignIndicies } from '../redis/utils.js';
 import events from '../events.js';
+import { getDetailsToContinueCampaign } from './utils.js'
 
 const concurrency = +process.env.CONCURRENT_CALLS;
 
@@ -70,6 +71,24 @@ export async function toggle(req, res) {
         setDialerStatus(user_id, -(dialer_status));
 
         const note =  (-(dialer_status) === 1) ? 'dialer_resumed' : 'dialer_paused';
+
+        if (note === 'dialer_resumed') {
+            const { script_id, numbers, caller_ids, next_lead, next_caller_id } = await getDetailsToContinueCampaign(user_id, concurrency);
+
+            const context = createContext(user_id, script_id);
+
+            for (let i = 0, j = next_caller_id; i < concurrency; i++, j++) {
+                if (numbers[i] === undefined) continue
+                if (caller_ids[j] === undefined) j = j % caller_ids.length
+
+                events.emit('queue_call', { to: numbers[i], from: caller_ids[j], context, user_id, i: next_lead + i });
+            }
+
+            // Passing null for the second argument tells the function to not update the start_index
+            // field. This field is unchanging, should only be set when the campaign is started.
+            setCampaignIndicies(user_id, null, next_lead + concurrency, next_caller_id + concurrency, caller_ids.length);
+        }
+
         return res.status(200).send(note);
     }
     
