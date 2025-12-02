@@ -36,9 +36,9 @@ export async function cacheCampaignResources(user_id, numbers, script_id, sheet_
     pipeline.exec();
 }
 
-export async function cacheCallStatus(user_id, call_status) {
+export async function cacheCallStatus(user_id, sheet_index, call_status) {
     const key = `user:${user_id}:call:status:report`;
-    cache.rPush(key, call_status);
+    cache.hSet(key, sheet_index.toString(), call_status);
 }
 
 export async function getOngoingCampaignResources(user_id, args) {
@@ -49,7 +49,7 @@ export async function getOngoingCampaignResources(user_id, args) {
     if (args === undefined) {
         pipeline.get(prefix + 'sheet:id');
         pipeline.hGet(prefix + 'campaign:indicies', 'start_index');
-        pipeline.lRange(prefix + 'call:status:report', 0, -1);
+        pipeline.hGetAll(prefix + 'call:status:report');
     }
     else {
         const { lead_start, lead_end } = args;
