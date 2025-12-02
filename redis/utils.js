@@ -41,14 +41,23 @@ export async function cacheCallStatus(user_id, call_status) {
     cache.rPush(key, call_status);
 }
 
-export async function getOngoingCampaignResources(user_id) {
+export async function getOngoingCampaignResources(user_id, args) {
     const prefix = `user:${user_id}:`;
 
     const pipeline = cache.multi();
 
-    pipeline.get(prefix + 'sheet:id');
-    pipeline.hGet(prefix + 'campaign:indicies', 'start_index');
-    pipeline.lRange(prefix + 'call:status:report', 0, -1);
+    if (args === undefined) {
+        pipeline.get(prefix + 'sheet:id');
+        pipeline.hGet(prefix + 'campaign:indicies', 'start_index');
+        pipeline.lRange(prefix + 'call:status:report', 0, -1);
+    }
+    else {
+        const { lead_start, lead_end } = args;
+
+        pipeline.get(prefix + 'script:id');
+        pipeline.lRange(prefix + 'leads', lead_start, lead_end);
+        pipeline.lRange(prefix + 'caller_ids', 0, -1);
+    }
 
     return await pipeline.exec();
 }
