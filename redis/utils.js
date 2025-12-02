@@ -91,3 +91,8 @@ export async function setCampaignIndicies(user_id, start_index, sheet_index, cal
 
     cache.hSet(key, pairs);
 }
+
+export async function getCampaignIndicies(user_id) {
+    const key = `user:${user_id}:campaign:indicies`;
+    return await cache.hGetAll(key);
+}
