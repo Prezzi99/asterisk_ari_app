@@ -42,6 +42,8 @@ export async function start(req, res) {
    
     for (let i = start, j = 0; i < concurrency + start; i++, j++) {
         if (numbers[i] === undefined) continue
+        if (caller_ids[j] === undefined) j = j % caller_ids.length
+
         events.emit('queue_call', { to: numbers[i], from: caller_ids[j], context, user_id, i });
     }
 
