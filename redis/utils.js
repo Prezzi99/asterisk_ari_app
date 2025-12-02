@@ -83,11 +83,18 @@ export async function setCampaignIndicies(user_id, start_index, sheet_index, cal
     const key = `user:${user_id}:campaign:indicies`;
 
     const pairs = [
-        'start_index', start_index.toString(),
+        'start_index', start_index?.toString(),
         'next_lead', sheet_index.toString(), 
         'next_caller_id', caller_id_index.toString(),
         'count_caller_id', count_caller_id.toString()
-    ]
+    ];
+
+    // If the start_index param is null or undefined, this means the start_index field should not be updated.
+    // Once this field is set, it should never change.
+    if (start_index === null || start_index === undefined) {
+        pairs.shift();
+        pairs.shift();
+    }
 
     cache.hSet(key, pairs);
 }
