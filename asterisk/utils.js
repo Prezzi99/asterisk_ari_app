@@ -29,7 +29,6 @@ export async function originate(to, from, context, endpoint) {
             to: decodeURIComponent(to)
         }
     })
-    .catch(err => console.log(err));
 }
 
 async function subscribe(id, resource) {

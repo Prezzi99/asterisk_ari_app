@@ -50,7 +50,8 @@ export async function makeCall(details) {
     .then(channel => {  
         if (!channel) return
         cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i);
-    });
+    })
+    .catch(err => events.emit('call-status', user_id, 'failed', i))
 }
 
 function formatNumber(tel) {
