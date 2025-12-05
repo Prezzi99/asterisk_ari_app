@@ -112,3 +112,15 @@ export async function getCampaignIndicies(user_id) {
     const key = `user:${user_id}:campaign:indicies`;
     return await cache.hGetAll(key);
 }
+
+export async function cacheChannelVariables(user_id, channel_variables) {
+    if (!channel_variables) return
+
+    const key = `user:${user_id}:channel_variables`
+    cache.set(key, channel_variables);
+}
+
+export async function getChannelVariables(user_id) {
+    const key = `user:${user_id}:channel_variables`;
+    return await cache.get(key)
+}
