@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { getCampaignIndicies, getOngoingCampaignResources } from '../redis/utils.js'
+import { formatNumber } from '../utils.js';
 
 export function testRegExp(pairs) {
     for (let item of pairs) {
@@ -55,4 +56,18 @@ export async function getDetailsToContinueCampaign(user_id, concurrency) {
     const [ script_id, numbers, caller_ids ] = await getOngoingCampaignResources(user_id, args);
 
     return { script_id, numbers, caller_ids, next_lead, next_caller_id }
+}
+
+export function createChannelVariables(agent_numbers) {
+    const count_agents = agent_numbers?.length.toString() || '0';
+    const channel_variables = {};
+
+    agent_numbers.forEach((number, i) => {
+        const key = `AGENT_${i + 1}`;
+        channel_variables[key] = formatNumber(number) || number
+    });
+
+    channel_variables.i = count_agents;
+
+    return JSON.stringify(channel_variables);
 }

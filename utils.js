@@ -54,7 +54,7 @@ export async function makeCall(details) {
     .catch(err => events.emit('call-status', user_id, 'failed', i))
 }
 
-function formatNumber(tel) {
+export function formatNumber(tel) {
     if (!tel) return
     
     tel = tel.toString();
