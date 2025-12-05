@@ -63,3 +63,12 @@ export async function getScriptAudio(script_id, user_id) {
     const [result] = await pool.query('SELECT audio FROM scripts WHERE id = ? AND user_id = ?', [script_id, user_id]);
     return result[0]?.audio
 }
+
+export async function getAgentsPhoneNumbers(user_id) {
+    const [numbers] = await pool.query(
+        'SELECT JSON_ARRAYAGG(phone_number) AS numbers FROM agents WHERE user_id = ?', 
+        user_id
+    );
+
+    return numbers[0].numbers
+}
