@@ -1,9 +1,9 @@
-import { getCampaignResources } from "../database/utils.js";
+import { getCampaignResources, getAgentsPhoneNumbers } from "../database/utils.js";
 import { createContext, testRegExp } from "./utils.js";
 import * as xlsx from 'xlsx';
-import { cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources, setCampaignIndicies } from '../redis/utils.js';
+import { cacheCampaignResources, getDialerStatus, setDialerStatus, dumpCampaignResources, setCampaignIndicies, cacheChannelVariables } from '../redis/utils.js';
 import events from '../events.js';
-import { getDetailsToContinueCampaign } from './utils.js'
+import { getDetailsToContinueCampaign, createChannelVariables } from './utils.js'
 
 const concurrency = +process.env.CONCURRENT_CALLS;
 
@@ -37,9 +37,17 @@ export async function start(req, res) {
         numbers = sheet_as_json.map(row => row['Telephone']);
     });
 
-    if (!caller_ids.length || !numbers.length) return res.status(404).send('missing_script_caller_id_or_phone_numbers.');
+    if (!caller_ids?.length || !numbers?.length) return res.status(404).send('missing_script_caller_id_or_phone_numbers.');
 
     const context = createContext(user_id, script_id);
+
+    getAgentsPhoneNumbers(user_id)
+    .then(numbers => {
+        if (!numbers?.length) return
+
+        const chan_variables = createChannelVariables(numbers);
+        cacheChannelVariables(user_id, chan_variables);
+    });
    
     for (let i = start, j = 0; i < concurrency + start; i++, j++) {
         if (numbers[i] === undefined) continue
@@ -76,6 +84,14 @@ export async function toggle(req, res) {
             const { script_id, numbers, caller_ids, next_lead, next_caller_id } = await getDetailsToContinueCampaign(user_id, concurrency);
 
             const context = createContext(user_id, script_id);
+
+            getAgentsPhoneNumbers(user_id)
+            .then(numbers => {
+                if (!numbers?.length) return
+                
+                const chan_variables = createChannelVariables(numbers);
+                cacheChannelVariables(user_id, chan_variables);
+            });
 
             for (let i = 0, j = next_caller_id; i < concurrency; i++, j++) {
                 if (numbers[i] === undefined) continue
