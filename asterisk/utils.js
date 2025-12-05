@@ -6,7 +6,7 @@ const key = process.env.ARI_USERNAME + ':' + process.env.ARI_PASSWORD;
 const host = process.env.ARI_HOST;
 const app = process.env.ARI_APP;
 
-export async function originate(to, from, context, endpoint) {
+export async function originate(to, from, context, endpoint, channel_variables) {
     if (!to || !from) return
 
     // Encode the '+' characters in the phone numbers
@@ -16,7 +16,15 @@ export async function originate(to, from, context, endpoint) {
     const uri = `/ari/channels?api_key=${key}&endpoint=PJSIP/${to}@${endpoint}&extension=${to}&context=${context}&priority=1&callerId=${from}`;
     const url = 'http' + '://' + host + uri;
 
-    return await fetch(url, { method: 'POST'})
+    return await fetch(url, { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            variables: channel_variables
+        })
+    })
     .then(async response => {
         const channel = await response.json();
 

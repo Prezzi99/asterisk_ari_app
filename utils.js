@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import cache from './redis/config.js';
-import { cacheChannelDetails } from './redis/utils.js';
+import { cacheChannelDetails, getChannelVariables } from './redis/utils.js';
 import { originate } from './asterisk/utils.js';
 import events from './events.js'
 
@@ -46,7 +46,9 @@ export async function makeCall(details) {
 
     if (to === undefined) return events.emit('call-status', user_id, 'invalid number', i);
 
-    originate(to, from, context, endpoint)
+    const channel_variables = JSON.parse(await getChannelVariables(user_id));
+
+    originate(to, from, context, endpoint, channel_variables)
     .then(channel => {  
         if (!channel) return
         cacheChannelDetails(channel.id, channel.from, channel.to, user_id, i);
